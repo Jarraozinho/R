@@ -1,0 +1,39 @@
+---
+title: "Meu Primeiro Relatório de Futebol"
+author: "Marcos Fillipe"
+date: "30 de maio de 2025"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Este chunk é comum para configurar opções globais
+# include=FALSE significa que o chunk em si não aparecerá no documento final, apenas seus resultados
+```{r carregar_dados}
+# Carregando dados de exemplo (você substituiria pelo seu dataset de futebol)
+library(dplyr)
+library(ggplot2)
+
+# Dados de exemplo para ilustrar
+dados_partidas <- data.frame(
+  Time = c("Athletico Paranaense", "Atlético Goianiense ", "Atlético Mineiro ", "Bahia", "Botafogo", "Corinthians","Criciúma","Cruzeiro","Cuiabá ","Flamengo ","Fluminense","Fortaleza","Grêmio","Internacional","Juventude ","Palmeiras","Red Bull Bragantino ","São Paulo ","Vasco da Gama","Vitória"),
+  Gols_Marcados = c(55, 57, 96, 97, 55, 57, 76, 78, 93, 58, 55, 51, 79, 84, 87, 78, 68, 56,60, 97),
+  Gols_Sofridos = c(63 ,72 ,53 ,67 ,61 ,37 ,69 ,31, 71 ,45 ,55, 42 ,47 ,37 ,39 ,33 ,42 ,39, 43 , 65)
+)
+```{r analise_descritiva}
+# Resumo descritivo
+summary(dados_partidas)
+
+# Calculando saldo de gols
+dados_partidas <- dados_partidas %>%
+  mutate(Saldo_Gols = Gols_Marcados - Gols_Sofridos)
+
+print(dados_partidas)
+
+```{r grafico_saldo_gols}
+# Criando um gráfico
+ggplot(dados_partidas, aes(x = reorder(Time, Saldo_Gols), y = Saldo_Gols, fill = Time)) +
+  geom_col() +
+  labs(title = "Saldo de Gols por Time", x = "Time", y = "Saldo de Gols") +
+  theme_minimal()
+
+
