@@ -1,0 +1,100 @@
+---
+title: "Meu Primeiro Relatório de Futebol"
+author: "Marcos Fillipe"
+date: "30 de maio de 2025"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Este chunk é comum para configurar opções globais
+# include=FALSE significa que o chunk em si não aparecerá no documento final, apenas seus resultados
+```{r carregar_dados}
+# Carregando dados de exemplo (você substituiria pelo seu dataset de futebol)
+library(dplyr)
+library(ggplot2)
+
+# Dados de exemplo para ilustrar
+dados_partidas <- data.frame(
+  Time = c("Athletico Paranaense", "Atlético Goianiense ", "Atlético Mineiro ", "Bahia", "Botafogo", "Corinthians","Criciúma","Cruzeiro","Cuiabá ","Flamengo ","Fluminense","Fortaleza","Grêmio","Internacional","Juventude ","Palmeiras","Red Bull Bragantino ","São Paulo ","Vasco da Gama","Vitória"),
+  Gols_Marcados = c(55, 57, 96, 97, 55, 57, 76, 78, 93, 58, 55, 51, 79, 84, 87, 78, 68, 56,60, 97),
+  Gols_Sofridos = c(63 ,72 ,53 ,67 ,61 ,37 ,69 ,31, 71 ,45 ,55, 42 ,47 ,37 ,39 ,33 ,42 ,39, 43 , 65)
+)
+```{r analise_descritiva}
+# Resumo descritivo
+summary(dados_partidas)
+
+# Calculando saldo de gols
+dados_partidas <- dados_partidas %>%
+  mutate(Saldo_Gols = Gols_Marcados - Gols_Sofridos)
+
+print(dados_partidas)
+
+ggplot(dados_partidas, aes(x = reorder(Time, Saldo_Gols), y = Saldo_Gols, fill = Saldo_Gols)) +
+  geom_col() +
+  geom_text(aes(label = Saldo_Gols), hjust = ifelse(dados_partidas$Saldo_Gols >= 0, -0.1, 1.1), size = 3) +
+  scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0) +
+  labs(title = "Saldo de Gols por Time", x = "Time", y = "Saldo de Gols") +
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+    axis.text.y = element_text(size = 8),
+    legend.position = "none"
+  )
+
+
+# Simulando números de vitórias, empates e derrotas (substitua pelos dados reais se tiver)
+set.seed(123)  # Para reprodutibilidade
+dados_partidas <- dados_partidas %>%
+  mutate(
+    Vitorias = sample(5:25, size = n(), replace = TRUE),
+    Empates = sample(0:10, size = n(), replace = TRUE),
+    Derrotas = 38 - Vitorias - Empates  # Supondo que cada time jogou 38 partidas
+  )
+
+# Calculando pontos
+dados_partidas <- dados_partidas %>%
+  mutate(
+    Pontos = Vitorias * 3 + Empates * 1
+  )
+
+library(kableExtra)
+
+# Selecionando tabela de pontos
+tabela_pontos <- dados_partidas %>%
+  select(Time, Vitorias, Empates, Derrotas, Pontos) %>%
+  arrange(desc(Pontos))
+
+# Adicionando uma coluna de classificação
+tabela_classificacao <- tabela_pontos %>%
+  mutate(Classificacao = row_number()) %>%
+  select(Classificacao, everything())
+
+# Exibindo a tabela de classificação com cores
+tabela_classificacao %>%
+  kbl(caption = "Classificação Final dos Times") %>%
+  kable_classic(full_width = F) %>%
+  row_spec(1:4, background = "lightgreen") %>%  # Top 4 em verde
+  row_spec((nrow(tabela_classificacao)-3):nrow(tabela_classificacao), background = "tomato")  # Últimos 4 em vermelho
+
+
+# Selecionando tabela de pontos com Gols Marcados, Sofridos e Saldo
+tabela_pontos <- dados_partidas %>%
+  select(Time, Gols_Marcados, Gols_Sofridos, Saldo_Gols, Vitorias, Empates, Derrotas, Pontos) %>%
+  arrange(desc(Pontos))
+
+# Adicionando uma coluna de classificação
+tabela_classificacao <- tabela_pontos %>%
+  mutate(Classificacao = row_number()) %>%
+  select(Classificacao, everything())
+
+
+# Exibindo a tabela de classificação com cores
+tabela_classificacao %>%
+  kbl(caption = "Classificação Final dos Times (com Gols Marcados, Sofridos e Saldo)") %>%
+  kable_classic(full_width = F) %>%
+  row_spec(1:4, background = "lightgreen") %>%  # Top 4 em verde
+  row_spec((nrow(tabela_classificacao)-3):nrow(tabela_classificacao), background = "tomato")  # Últimos 4 em vermelho
+
+
+
